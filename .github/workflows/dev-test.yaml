@@ -18,7 +18,6 @@ jobs:
       matrix:
         os:
           - "ubuntu-18.04"
-          - "macos-10.15"
           - "windows-2019"
         node:
           - 12
@@ -28,6 +27,10 @@ jobs:
             node: "12"
             ENABLE_CODE_COVERAGE: true
             IS_FASTEST_JOB: true
+          - os: "ubuntu-18.04"
+            IS_LINUX: true
+          - os: "windows-2019"
+            IS_WINDOWS: true
     env:
       ENABLE_CODE_COVERAGE: ${{ matrix.ENABLE_CODE_COVERAGE }}
     name: Node.js ${{ matrix.node }} on ${{ matrix.os }}
@@ -46,12 +49,20 @@ jobs:
         uses: actions/setup-node@v2.1.1
         with:
           node-version: ${{ matrix.node }}
-      - name: Display Environment Dependency Versions
+      - name: Display Language Dependency Versions
         run: |
           python --version
           pip --version
           node --version
           npm --version
+
+      - name: Display Chrome version (Windows)
+        if: matrix.IS_WINDOWS == true
+        run: (Get-Item (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe').'(Default)').VersionInfo
+
+      - name: Display Chrome version (Linux)
+        if: matrix.IS_LINUX == true
+        run: |
           google-chrome --version
           chromedriver --version
 
@@ -64,15 +75,13 @@ jobs:
       - name: Run pre-commit hooks
         if: matrix.IS_FASTEST_JOB == true
         # only enable pre-commit on the fastest job
-        run: |
-          pre-commit install
-          pre-commit run -a
+        run: pre-commit run -a
+
+      - name: Confirm package builds correctly # Some tests rely on testing the built files in the dist folder, so make sure to do this before running the test suite
+        run: npm run build
 
       - name: Run Tests
         run: npm run test:unit-no-prebuild -- --ci --verbose
-
-      - name: Confirm package builds correctly
-        run: npm run build
 
       - name: Confirm Sphinx Docs build correctly
         # only check Sphinx docs build on the fastest job
