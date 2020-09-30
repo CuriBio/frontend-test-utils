@@ -55,8 +55,6 @@ jobs:
           pip --version
           node --version
           npm --version
-          google-chrome --version
-          chromedriver --version
 
       - name: Display Chrome version (Windows)
         if: matrix.IS_WINDOWS == true
