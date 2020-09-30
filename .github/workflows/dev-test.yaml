@@ -68,11 +68,11 @@ jobs:
           pre-commit install
           pre-commit run -a
 
+      - name: Confirm package builds correctly # Some tests rely on testing the built files in the dist folder, so make sure to do this before running the test suite
+        run: npm run build
+
       - name: Run Tests
         run: npm run test:unit-no-prebuild -- --ci --verbose
-
-      - name: Confirm package builds correctly
-        run: npm run build
 
       - name: Confirm Sphinx Docs build correctly
         # only check Sphinx docs build on the fastest job
