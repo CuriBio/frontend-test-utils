@@ -19,17 +19,17 @@ phases:
       - python --version
       - echo "Git Branch information:"
       - git branch -av
-      - SHA_OF_REMOTE_MASTER=$(git branch -av | grep remotes/origin/master | grep -oP "master\s+\K\w+")
+      - SHA_OF_REMOTE_MAIN=$(git branch -av | grep remotes/origin/main | grep -oP "main\s+\K\w+")
       - SHA_OF_REMOTE_DEVELOPMENT=$(git branch -av | grep remotes/origin/development | grep -oP "development\s+\K\w+")
       # In CodeBuild, sometimes a direct SHA is grabbed rather than a branch, so the 'name' of the branch is listed as: (no branch)
-      #   So can't use traditional grep to just check that the name of the current branch is 'master', have to explicitly check the SHAs
+      #   So can't use traditional grep to just check that the name of the current branch is 'main', have to explicitly check the SHAs
       - SHA_OF_LOCAL_COMMIT=$(git branch -av | grep "*" | grep -oP " \s+\K\w+")
       - 'PACKAGE_VERSION=$(grep -Po "(?<=  \"version\"\: \")[0-9.]+" package.json)'
       - 'echo "SHA of local commit: $SHA_OF_LOCAL_COMMIT"'
       - 'echo "SHA of remote development: $SHA_OF_REMOTE_DEVELOPMENT"'
-      - 'echo "SHA of remote master: $SHA_OF_REMOTE_MASTER"'
+      - 'echo "SHA of remote main: $SHA_OF_REMOTE_MAIN"'
       - 'echo "Current Package Version: $PACKAGE_VERSION"'
-      - 'if [ "$SHA_OF_LOCAL_COMMIT" = "$SHA_OF_REMOTE_MASTER" ]; then echo "This is the master branch."; else echo "This is not the master branch."; fi'
+      - 'if [ "$SHA_OF_LOCAL_COMMIT" = "$SHA_OF_REMOTE_MAIN" ]; then echo "This is the main branch."; else echo "This is not the main branch."; fi'
       - 'if [ "$SHA_OF_LOCAL_COMMIT" = "$SHA_OF_REMOTE_DEVELOPMENT" ]; then echo "This is the development branch."; else echo "This is not the development branch."; fi'
       - echo "Creating virtual environment for Python" # sometimes pre-commit can have odd issues when not in venv (Eli 4/6/20)
       - python -m venv venv
@@ -57,7 +57,7 @@ phases:
       - npm run test:unit-no-prebuild -- --ci
       # Only run the following command if the PUBLISH_TO_NPM environmental variable is set to 1 https://stackoverflow.com/questions/39619956/short-way-to-run-command-if-variable-is-set  (extra outer parentheses needed to make YAML parser happy)
       # Grab the version from the setup.py file using a grep "look-behind" https://stackoverflow.com/questions/30776265/how-to-grep-for-value-in-a-key-value-store-from-plain-text
-      # If this is attempted on any branch other than master, it should fail because the role only has permission to push to the master branch
+      # If this is attempted on any branch other than main, it should fail because the role only has permission to push to the main branch
       # Colon (or maybe semi-colon) is causing issue with CodeBuild YAML parser, so needed to wrap whole command in single quote
-      - 'if [ "$PUBLISH_TO_NPM" = "1" ] ; then if [ "$SHA_OF_LOCAL_COMMIT" = "$SHA_OF_REMOTE_MASTER" ]; then echo "Current branch matches SHA of remote master ($SHA_OF_REMOTE_MASTER) so tags are allowed"; else echo "Current branch is not master. SHA of current commit is $SHA_OF_LOCAL_COMMIT but SHA of remote master is $SHA_OF_REMOTE_MASTER" && exit 1; fi && npm install -g npm-cli-login@0.1.1 && npm-cli-login && echo "Applying tag to commit" && git tag "$(grep -Po "(?<=  \"version\"\: \")[0-9.]+" package.json)" && echo "Tag applied, attempting to push" && git push --tags && npm publish --access public; fi'
+      - 'if [ "$PUBLISH_TO_NPM" = "1" ] ; then if [ "$SHA_OF_LOCAL_COMMIT" = "$SHA_OF_REMOTE_MAIN" ]; then echo "Current branch matches SHA of remote main ($SHA_OF_REMOTE_MAIN) so tags are allowed"; else echo "Current branch is not main. SHA of current commit is $SHA_OF_LOCAL_COMMIT but SHA of remote main is $SHA_OF_REMOTE_MAIN" && exit 1; fi && npm install -g npm-cli-login@0.1.1 && npm-cli-login && echo "Applying tag to commit" && git tag "$(grep -Po "(?<=  \"version\"\: \")[0-9.]+" package.json)" && echo "Tag applied, attempting to push" && git push --tags && npm publish --access public; fi'
       - echo "Build completed on $(date)"
