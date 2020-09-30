@@ -1,12 +1,12 @@
 {
-  "name": "@curi-bio/frontend_test_utils",
-  "version": "0.0.48",
-  "description": "things to help testing. to set as dependency in package.json: '@curibio/frontend_test_utils': 'git+https://git-codecommit.us-east-1.amazonaws.com/v1/repos/frontend_test_utils#0.0.1'",
+  "name": "@curi-bio/frontend-test-utils",
+  "version": "0.0.49",
+  "description": "Various utilities to help with Front End unit and Visual Regression testing.",
   "main": "./dist/frontend-test-utils.common.js",
-  "author": "Eli",
+  "author": "Curi Bio <contact@curibio.com> (http://www.curibio.com/)",
   "repository": {
     "type": "git",
-    "url": "https://git-codecommit.us-east-1.amazonaws.com/v1/repos/frontend_test_utils"
+    "url": "https://github.com/CuriBio/frontend-test-utils.git"
   },
   "scripts": {
     "test:e2e": "node ./check_engines.js && testcafe chrome:headless:cdpPort=9222 ./tests/e2e --screenshots path=./tests/e2e/screenshots",
