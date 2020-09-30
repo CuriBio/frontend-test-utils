@@ -58,7 +58,7 @@ jobs:
 
       - name: Display Chrome version (Windows)
         if: matrix.IS_WINDOWS == true
-        run: (Get-Item "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe").VersionInfo
+        run: (Get-Item (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe').'(Default)').VersionInfo
 
       - name: Display Chrome version (Linux)
         if: matrix.IS_LINUX == true
