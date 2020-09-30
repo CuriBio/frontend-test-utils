@@ -2,13 +2,16 @@ AWSTemplateFormatVersion: 2010-09-09
 Transform: "AWS::Serverless-2016-10-31"
 
 # Adapted from: https://github.com/aws-samples/aws-codebuild-samples/blob/master/cloudformation/continuous-integration-pull-request-checks.yml
-# to create: aws cloudformation deploy --stack-name=codebuild-frontend-test-utils --parameter-overrides CodeCommitRepoName=frontend_test_utils --template-file=codebuild-formation.yaml --capabilities CAPABILITY_NAMED_IAM
 
-Description: Perform continuous integration pull request checks on a CodeCommit repository with CodeBuild
+# Note (Eli 5/3/30): you must connect your AWS account to your github account using OAuth manually before this will work (one-time). To do so, just attempt to create a CodeBuild project through the console--you don't need to finish creating it, just get to the point where you've created the OAuth connection.
+
+# to create: aws cloudformation deploy --stack-name=codebuild-frontend-test-utils-publish-to-npm --parameter-overrides GithubRepoName=frontend-test-utils --template-file=codebuild-formation.yaml --capabilities CAPABILITY_NAMED_IAM
+
+Description: Use CodeBuild to publish Github repos to PyPi using company PyPi credentials
 
 Parameters:
-  CodeCommitRepoName:
-    Description: A CodeCommit repository that contains the application code. Must be in same region as this stack.
+  GithubRepoName:
+    Description: A Github repository that contains the application code.
     Type: String
 
 Resources:
@@ -23,20 +26,6 @@ Resources:
               - logs:PutLogEvents
             Effect: Allow
             Resource: "*"
-          - Action:
-              - codecommit:GitPull
-            Effect: Allow
-            Resource: "*"
-          - Action:
-              - codecommit:GitPush
-            Effect: Allow
-            Resource:
-              Fn::Join:
-                - ":"
-                - - "arn:aws:codecommit"
-                  - Ref: "AWS::Region"
-                  - "*"
-                  - Ref: "CodeCommitRepoName"
           - Action:
               - ssm:GetParameters
             Effect: Allow
@@ -74,25 +63,34 @@ Resources:
             - Ref: "AWS::StackName"
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/standard:4.0-20.03.13
+        Image: aws/codebuild/standard:4.0-20.06.15
         Type: LINUX_CONTAINER
         EnvironmentVariables:
-          - Name: APPLY_TAG
+          - Name: PUBLISH_TO_NPM
             Type: PLAINTEXT
             Value: "0"
+
       Name:
-        Ref: "CodeCommitRepoName"
+        Fn::Join:
+          - "-"
+          - - Ref: GithubRepoName
+            - "publish-to-npm"
       ServiceRole:
         Ref: "CodeBuildRole"
       Source:
-        Type: CODECOMMIT
+        Auth:
+          Type: "OAUTH"
+        GitCloneDepth: 1
+
+        ReportBuildStatus: True
         Location:
           Fn::Join:
             - ""
-            - - "https://git-codecommit."
-              - Ref: "AWS::Region"
-              - ".amazonaws.com/v1/repos/"
-              - Ref: "CodeCommitRepoName"
+            - - "https://github.com/CuriBio/"
+              - Ref: GithubRepoName
+              - "/"
+        Type: GITHUB
+
       QueuedTimeoutInMinutes: 10
       TimeoutInMinutes: 30
     Type: AWS::CodeBuild::Project
