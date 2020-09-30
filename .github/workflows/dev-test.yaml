@@ -18,7 +18,6 @@ jobs:
       matrix:
         os:
           - "ubuntu-18.04"
-          - "macos-10.15"
           - "windows-2019"
         node:
           - 12
@@ -28,6 +27,10 @@ jobs:
             node: "12"
             ENABLE_CODE_COVERAGE: true
             IS_FASTEST_JOB: true
+          - os: "ubuntu-18.04"
+            IS_LINUX: true
+          - os: "windows-2019"
+            IS_WINDOWS: true
     env:
       ENABLE_CODE_COVERAGE: ${{ matrix.ENABLE_CODE_COVERAGE }}
     name: Node.js ${{ matrix.node }} on ${{ matrix.os }}
@@ -46,12 +49,22 @@ jobs:
         uses: actions/setup-node@v2.1.1
         with:
           node-version: ${{ matrix.node }}
-      - name: Display Environment Dependency Versions
+      - name: Display Language Dependency Versions
         run: |
           python --version
           pip --version
           node --version
           npm --version
+          google-chrome --version
+          chromedriver --version
+
+      - name: Display Chrome version (Windows)
+        if: matrix.IS_WINDOWS == true
+        run: (Get-Item "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe").VersionInfo
+
+      - name: Display Chrome version (Linux)
+        if: matrix.IS_LINUX == true
+        run: |
           google-chrome --version
           chromedriver --version
 
