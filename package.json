@@ -1,5 +1,5 @@
 {
-  "name": "@curi-bio/frontend_test_utils",
+  "name": "@curi-bio/frontend-test-utils",
   "version": "0.0.49",
   "description": "Various utilities to help with Front End unit and Visual Regression testing.",
   "main": "./dist/frontend-test-utils.common.js",
