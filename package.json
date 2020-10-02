@@ -83,7 +83,7 @@
     "sinon": "~9.0.2",
     "vue": "~2.6.11",
     "vue-template-compiler": "~2.6.10",
-    "webpack": "~4.42.0"
+    "webpack": "~4.44.2"
   },
   "license": "MIT"
 }
