@@ -43,7 +43,6 @@
     "@babel/preset-env": "^7.7.7",
     "@babel/runtime-corejs2": "7.9.2",
     "@vue/cli-service": "^4.4.4",
-    "@vue/test-utils": "^1.0.3",
     "autoprefixer": "^9.7.3",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.1",
