@@ -4,7 +4,7 @@ minimum_pre_commit_version: "2.7.1"
 repos:
   # Git-related
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.3.0 # Use the ref you want to point at
+    rev: v3.4.0 # Use the ref you want to point at
     hooks:
       - id: forbid-new-submodules
   - repo: https://github.com/jumanjihouse/pre-commit-hooks
@@ -14,7 +14,7 @@ repos:
 
   # Reformatting (should generally come before any file format or other checks, because reformatting can change things)
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.3.0 # Use the ref you want to point at
+    rev: v3.4.0 # Use the ref you want to point at
     hooks:
       - id: trailing-whitespace
         exclude: dist/ # apparently sometimes the build adds in whitespace, so this can cause the git repo to be dirty unnecessarily
@@ -30,13 +30,13 @@ repos:
 
   # Safety/Security Issues
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.3.0 # Use the ref you want to point at
+    rev: v3.4.0 # Use the ref you want to point at
     hooks:
       - id: detect-private-key
 
   # Invalid File Checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.3.0 # Use the ref you want to point at
+    rev: v3.4.0 # Use the ref you want to point at
     hooks:
       - id: check-added-large-files
         name: general-large-file-check
@@ -58,7 +58,7 @@ repos:
       - id: vuejs-check-no-console-log-statments
         exclude: dist
   - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v7.15.0
+    rev: v7.16.0
     hooks:
       - id: eslint
         exclude: (dist/)
@@ -66,7 +66,7 @@ repos:
         types: [file]
         additional_dependencies:
           - babel-eslint@10.1.0
-          - eslint@7.15.0
+          - eslint@7.16.0
           - eslint-config-google@0.14.0
           - eslint-config-prettier@7.0.0
           - eslint-config-standard@14.1.1
