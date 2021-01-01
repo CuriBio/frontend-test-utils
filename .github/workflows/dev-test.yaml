@@ -107,7 +107,9 @@ jobs:
         env:
           PRE_COMMIT_HOME: ~/.precommit_cache
         # only enable pre-commit on the fastest job
-        run: pre-commit run -a
+        run: |
+          pre-commit install
+          pre-commit run -a
 
       - name: Confirm package builds correctly # Some tests rely on testing the built files in the dist folder, so make sure to do this before running the test suite
         run: npm run build
