@@ -1,4 +1,4 @@
-minimum_pre_commit_version: "2.7.1"
+minimum_pre_commit_version: 2.9.3
 # default_stages: [commit, push]
 # fail_fast: true
 repos:
@@ -17,7 +17,6 @@ repos:
     rev: v3.4.0 # Use the ref you want to point at
     hooks:
       - id: trailing-whitespace
-        exclude: dist/ # apparently sometimes the build adds in whitespace, so this can cause the git repo to be dirty unnecessarily
       - id: pretty-format-json
         args: [--autofix, --no-sort-keys]
         exclude: .babelrc
@@ -26,7 +25,6 @@ repos:
     rev: v2.2.1
     hooks:
       - id: prettier
-        exclude: dist/
 
   # Safety/Security Issues
   - repo: https://github.com/pre-commit/pre-commit-hooks
