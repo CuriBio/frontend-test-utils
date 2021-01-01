@@ -2,6 +2,7 @@
 .npm_cache/
 .precommit_cache/
 .pipenv_cache/
+.cache/pip
 
 
 *.log

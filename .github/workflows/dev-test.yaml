@@ -75,6 +75,17 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-${{ matrix.node-version }}-build-${{ env.cache-name }}-
 
+      - name: Cache Python modules # needed for pre-commit
+        uses: actions/cache@v2
+        if: matrix.IS_FASTEST_JOB == true
+        env:
+          cache-name: cache-python-modules
+        with:
+          path: ./.cache/pip
+          key: ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-${{ hashFiles('**/requirements-dev.txt') }}
+          restore-keys: |
+            ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-
+
       - name: Cache Pre-commit hooks
         uses: actions/cache@v2
         env:
