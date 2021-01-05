@@ -56,7 +56,7 @@ repos:
       - id: vuejs-check-no-console-log-statments
         exclude: dist
   - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v7.16.0
+    rev: v7.17.0
     hooks:
       - id: eslint
         exclude: (dist/)
@@ -64,7 +64,7 @@ repos:
         types: [file]
         additional_dependencies:
           - babel-eslint@10.1.0
-          - eslint@7.16.0
+          - eslint@7.17.0
           - eslint-config-google@0.14.0
           - eslint-config-prettier@7.1.0
           - eslint-config-standard@16.0.2
