@@ -228,13 +228,18 @@ jobs:
           npm ci --unsafe-perm --cache .npm_cache/
           pip freeze
 
-      - name: Uploading to NPM
-        if: github.event.inputs.publish_package == '1'
+      - name: Logging into NPM
         env:
           NPM_USER: ${{ secrets.NPM_USERNAME }}
           NPM_PASS: ${{ secrets.NPM_PASSWORD }}
           NPM_EMAIL: ${{ secrets.NPM_EMAIL }}
 
+        run: |
+          npm install -g npm-cli-login@0.1.1
+          npm-cli-login
+
+      - name: Uploading to NPM
+        if: github.event.inputs.publish_package == '1'
         run: npm publish --access public
 
       - name: Sleep for 180 seconds to allow NPM Index to update before proceeding to the next step
