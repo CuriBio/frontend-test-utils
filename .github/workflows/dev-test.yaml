@@ -18,38 +18,35 @@ jobs:
       matrix:
         os:
           - "ubuntu-18.04"
+          - "ubuntu-20.04"
           - "windows-2019"
-        node:
-          - 12
+        node-version:
           - 14
         include:
           # only enable coverage on the fastest job
-          - os: "ubuntu-18.04"
-            node: "12"
+          - os: "ubuntu-20.04"
+            node-version: 14
             ENABLE_CODE_COVERAGE: true
             IS_FASTEST_JOB: true
-          - os: "ubuntu-18.04"
-            IS_LINUX: true
-          - os: "windows-2019"
-            IS_WINDOWS: true
     env:
       ENABLE_CODE_COVERAGE: ${{ matrix.ENABLE_CODE_COVERAGE }}
-    name: Node.js ${{ matrix.node }} on ${{ matrix.os }}
+    name: Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 1
+
       - name: Set up Python for use with pre-commit
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: 3.9
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.2
+        uses: actions/setup-node@v2.1.4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: ${{ matrix.node-version }}
       - name: Display Language Dependency Versions
         run: |
           python --version
@@ -58,25 +55,60 @@ jobs:
           npm --version
 
       - name: Display Chrome version (Windows)
-        if: matrix.IS_WINDOWS == true
+        if: runner.os == 'Windows'
         run: (Get-Item (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe').'(Default)').VersionInfo
 
       - name: Display Chrome version (Linux)
-        if: matrix.IS_LINUX == true
+        if: runner.os == 'Linux'
         run: |
           google-chrome --version
           chromedriver --version
 
+      - name: Cache node modules # https://docs.github.com/en/free-pro-team@latest/actions/guides/caching-dependencies-to-speed-up-workflows
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ./.npm_cache
+          key: ${{ matrix.os }}-${{ matrix.node-version }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ matrix.os }}-${{ matrix.node-version }}-build-${{ env.cache-name }}-
+
+      - name: Cache Python modules # needed for pre-commit
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-python-modules
+        with:
+          path: ./.cache/pip
+          key: ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-${{ hashFiles('**/requirements-dev.txt') }}
+          restore-keys: |
+            ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-
+
+      - name: Cache Pre-commit hooks
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-pre-commit-hooks
+        if: matrix.IS_FASTEST_JOB == true
+        with:
+          path: ~/.precommit_cache # Eli (10/22/20): Having the pre-commit cache inside the repo creates problems with Pytest detecting test files inside the cache
+          key: ${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.node-version }}-build-${{ env.cache-name }}-${{ hashFiles('**/.pre-commit-config.yaml') }}
+          restore-keys: |
+            ${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.node-version }}-build-${{ env.cache-name }}-
+
       - name: Install Node Dependencies and list installed python dev dependencies
         # not sure why CodeBuild fails without the --unsafe-perm flag for npm ci, but it seems to help when running the "prepare" scripts after the install https://stackoverflow.com/questions/18136746/npm-install-failed-with-cannot-run-in-wd
         run: |
-          npm ci --unsafe-perm
+          npm ci --unsafe-perm --cache .npm_cache/
           pip freeze
 
       - name: Run pre-commit hooks
         if: matrix.IS_FASTEST_JOB == true
+        env:
+          PRE_COMMIT_HOME: ~/.precommit_cache
         # only enable pre-commit on the fastest job
-        run: pre-commit run -a
+        run: |
+          pre-commit install
+          pre-commit run -a
 
       - name: Confirm package builds correctly # Some tests rely on testing the built files in the dist folder, so make sure to do this before running the test suite
         run: npm run build
