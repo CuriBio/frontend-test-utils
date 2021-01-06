@@ -194,6 +194,21 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Cache node modules # https://docs.github.com/en/free-pro-team@latest/actions/guides/caching-dependencies-to-speed-up-workflows
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ./.npm_cache
+          key: ${{ matrix.os }}-${{ matrix.node-version }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ matrix.os }}-${{ matrix.node-version }}-build-${{ env.cache-name }}-
+
+      - name: Set up Python for use with dev dependencies used during publishing # this pins the Python version instead of using whatever github decides should be the default
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
       - name: Display Language Dependency Versions
         run: |
           python --version
@@ -206,6 +221,12 @@ jobs:
         with:
           name: dist--${{ matrix.os }}--${{ matrix.node-version }}
           path: dist
+
+      - name: Install Node Dependencies and list installed python dev dependencies
+        # not sure why CodeBuild fails without the --unsafe-perm flag for npm ci, but it seems to help when running the "prepare" scripts after the install https://stackoverflow.com/questions/18136746/npm-install-failed-with-cannot-run-in-wd
+        run: |
+          npm ci --unsafe-perm --cache .npm_cache/
+          pip freeze
 
       - name: Uploading to NPM
         if: github.event.inputs.publish_package == '1'
