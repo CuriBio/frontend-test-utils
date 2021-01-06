@@ -163,322 +163,142 @@ jobs:
         if: matrix.IS_FASTEST_JOB == true
         run: SPHINXOPTS="-W" make --directory=docs html # the -W flag treats warnings as errors to cause build failures
 
+      # - name: Confirm can install in other directory # https://docs.npmjs.com/cli/v6/using-npm/developers
+      #   run: |
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v2
         with:
           name: dist--${{ matrix.os }}--${{ matrix.node-version }}
           path: dist/*
 
-  # publish_to_npm:
-  #   needs: [test]
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       os:
-  #         - "ubuntu-20.04"
-  #       node-version:
-  #           - 14
-  #   name: Publish to NPM using ${{ matrix.node-version }} on ${{ matrix.os }}
-  #   runs-on: ${{ matrix.os }}
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
-  #       with:
-  #         fetch-depth: 1
+  publish_package:
+    needs: [test]
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - "ubuntu-20.04"
+        node-version:
+          - 14
+    name: Publish to NPM using ${{ matrix.node-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
 
-  #     - name: Activate virtual environment (Linux/MacOS)
-  #       if: runner.os == 'Linux' || runner.os == 'macOS'
-  #       run: . venv/bin/activate
+      - name: Setup Node.js
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: ${{ matrix.node-version }}
 
-  #     - name: Activate virtual environment (Windows)
-  #       if: runner.os == 'Windows'
-  #       run: venv\Scripts\Activate.ps1
+      - name: Display Language Dependency Versions
+        run: |
+          python --version
+          pip --version
+          node --version
+          npm --version
 
-  #     - name: Display Pip Version and confirm environment empty
-  #       run: |
-  #         pip -V
-  #         pip freeze
-  #     - name: Install Dev Dependencies
-  #       run: pip install -r requirements-dev.txt
+      - name: Download built dist folder from previous step
+        uses: actions/download-artifact@v2
+        with:
+          name: dist--${{ matrix.os }}--${{ matrix.node-version }}
+          path: dist
 
-  #     - name: Log full installed packages
-  #       run: pip freeze
+      - name: Uploading to NPM
+        if: github.event.inputs.publish_package == '1'
+        env:
+          NPM_USER: ${{ secrets.NPM_USERNAME }}
+          NPM_PASS: ${{ secrets.NPM_PASSWORD }}
+          NPM_EMAIL: ${{ secrets.NPM_EMAIL }}
 
-  #     - name: Download built dist folder from previous step
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: dist--${{ matrix.os }}--${{ matrix.python-version }}
-  #         path: dist
+        run: npm publish --access public
 
-  #     - name: Uploading to Test PyPI
-  #       if: github.event.inputs.publish_package == '1'
-  #       env:
-  #         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-  #         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      - name: Sleep for 180 seconds to allow NPM Index to update before proceeding to the next step
+        if: github.event.inputs.publish_package == '1'
+        uses: juliangruber/sleep-action@v1
+        with:
+          time: 180s
 
-  #       run: twine upload --repository testpypi dist/*
+  install_from_npm:
+    needs: [publish_package]
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - "ubuntu-18.04"
+          - "ubuntu-20.04"
+          - "windows-2019"
+        node-version:
+          - 14
+    name: Test installation from NPM for Node ${{ matrix.node-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
 
-  #     - name: Sleep for 360 seconds to allow Test PyPI Index to update before proceeding to the next step
-  #       if: github.event.inputs.publish_package == '1'
-  #       uses: juliangruber/sleep-action@v1
-  #       with:
-  #         time: 360s
+      - name: Setup Node.js
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: ${{ matrix.node-version }}
 
-  # install_from_test_pypi:
-  #   needs: [publish_to_test_pypi]
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       os:
-  #         - "ubuntu-18.04"
-  #         - "ubuntu-20.04"
-  #         - "windows-2019"
-  #         - "macos-10.15"
-  #         - "macos-11.0"
-  #       python-version:
-  #           - 3.7
-  #           - 3.8
-  #           - 3.9
-  #   name: Install from Test PyPI and run tests on Python ${{ matrix.python-version }} on ${{ matrix.os }}
-  #   runs-on: ${{ matrix.os }}
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
-  #       with:
-  #         fetch-depth: 1
+      - name: Get Version
+        id: package-version
+        uses: notiz-dev/github-action-json-property@v0.1.0
+        with:
+          path: "package.json"
+          prop_path: "version"
 
-  #     - name: Set up Python
-  #       uses: actions/setup-python@v2
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
-  #     - name: Display Python version
-  #       run: |
-  #         python -c "import sys; print(sys.version)"
-  #         python -m venv venv
+      - name: Get Package Name
+        id: package-name
+        uses: notiz-dev/github-action-json-property@v0.1.0
+        with:
+          path: "package.json"
+          prop_path: "name"
 
-  #     - name: Activate virtual environment (Linux/MacOS)
-  #       if: runner.os == 'Linux' || runner.os == 'macOS'
-  #       run: . venv/bin/activate
+      - name: Install Main Package From NPM
+        if: github.event.inputs.publish_package == '1'
+        run: npm install ${{steps.package-name.outputs.prop}}@${{steps.package-version.outputs.prop}}
 
-  #     - name: Activate virtual environment (Windows)
-  #       if: runner.os == 'Windows'
-  #       run: venv\Scripts\Activate.ps1
+      - name: Create tiny .js file to require package
+        run: |
+          echo 'require("${{steps.package-name.outputs.prop}}")' > tmp.js
 
-  #     - name: Display Pip Version and confirm environment empty
-  #       run: |
-  #         pip -V
-  #         pip freeze
+      - name: Confirm to import errors when opening package
+        if: github.event.inputs.publish_package == '1'
+        run: node tmp.js
 
-  #     - name: Extract package info # Adapted from: https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
-  #       shell: bash
-  #       run: |
-  #         echo '##[set-output name=package-name;]$(echo $(python .github/workflows/extract_package_info.py package_name))'
-  #         echo '##[set-output name=package-version;]$(echo $(python .github/workflows/extract_package_info.py package_version))'
-  #       id: extract_package_info
+  create_tag:
+    needs: [install_from_npm]
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - "ubuntu-20.04"
+    name: Creating tag on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
 
-  #     - name: Install Main Package From Test PyPI
-  #       if: github.event.inputs.publish_package == '1'
-  #       run: python .github/workflows/extract_package_info.py install_from_test_pypi
+      - name: Get Version
+        id: package-version
+        uses: notiz-dev/github-action-json-property@v0.1.0
+        with:
+          path: "package.json"
+          prop_path: "version"
 
-  #     - name: Install Main Package From Local repo as test since not publishing to PyPI
-  #       if: github.event.inputs.publish_package != '1'
-  #       run: |
-  #         echo Extracted package name that would have been used when publishing: ${{ steps.extract_package_info.outputs.package-name }}
-  #         echo Extracted package version that would have been used when publishing: ${{ steps.extract_package_info.outputs.package-version }}
-  #         pip install -e .
+      - name: Tagging commit
+        run: |
+          echo "About to tag with: ${{steps.package-version.outputs.prop}}"
+          git tag "${{steps.package-version.outputs.prop}}"
 
-  #     - name: Confirm no import errors when opening package
-  #       run: python -c "import ${{ steps.extract_package_info.outputs.package-name }}"
-
-  #     - name: Install Dev Dependencies
-  #       run: pip install -r requirements-dev.txt
-
-  #     - name: Log full installed packages
-  #       run: pip freeze
-
-  #     - name: Run Tests with randomly generated seed
-  #       if: github.event.inputs.randomlyseed == ''
-  #       run: pytest -xsvv --full-ci --include-slow-tests --cov-fail-under=0
-
-  #     - name: Run Tests with supplied pytest-randomly seed
-  #       if: github.event.inputs.randomlyseed != ''
-  #       run: pytest -xsvv --full-ci --include-slow-tests --randomly-seed=${{ github.event.inputs.randomlyseed }}--cov-fail-under=0
-
-  # publish_package:
-  #   needs: [install_from_test_pypi]
-  #   strategy:
-  #     fail-fast: false
-  #     matrix: # if publishing pure python code, then disable all except one os and python version combination. But if publishing code that uses Cython then likely all combinations will be needed
-  #       os:
-  #         - "ubuntu-18.04"
-  #         - "ubuntu-20.04"
-  #         - "windows-2019"
-  #         - "macos-10.15"
-  #         - "macos-11.0"
-  #       python-version:
-  #           - 3.7
-  #           - 3.8
-  #           - 3.9
-  #   name: Publish to PyPI for Python ${{ matrix.python-version }} on ${{ matrix.os }}
-  #   runs-on: ${{ matrix.os }}
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
-  #       with:
-  #         fetch-depth: 1
-
-  #     - name: Set up Python
-  #       uses: actions/setup-python@v2
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
-  #     - name: Display Python version
-  #       run: |
-  #         python -c "import sys; print(sys.version)"
-  #         python -m venv venv
-
-  #     - name: Activate virtual environment (Linux/MacOS)
-  #       if: runner.os == 'Linux' || runner.os == 'macOS'
-  #       run: . venv/bin/activate
-
-  #     - name: Activate virtual environment (Windows)
-  #       if: runner.os == 'Windows'
-  #       run: venv\Scripts\Activate.ps1
-
-  #     - name: Display Pip Version and confirm environment empty
-  #       run: |
-  #         pip -V
-  #         pip freeze
-  #     - name: Install Dev Dependencies
-  #       run: pip install -r requirements-dev.txt
-
-  #     - name: Log full installed packages
-  #       run: pip freeze
-
-  #     - name: Download built dist folder from previous step
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: dist--${{ matrix.os }}--${{ matrix.python-version }}
-  #         path: dist
-
-  #     - name: Uploading to PyPi
-  #       if: github.event.inputs.publish_package == '1'
-  #       env:
-  #         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-  #         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-
-  #       run: twine upload dist/*
-
-  #     - name: Sleep for 360 seconds to allow PyPI Index to update before proceeding to the next step
-  #       if: github.event.inputs.publish_package == '1'
-  #       uses: juliangruber/sleep-action@v1
-  #       with:
-  #         time: 360s
-
-  # install_from_pypi:
-  #   needs: [publish_package]
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       os:
-  #         - "ubuntu-18.04"
-  #         - "ubuntu-20.04"
-  #         - "windows-2019"
-  #         - "macos-10.15"
-  #         - "macos-11.0"
-  #       python-version:
-  #           - 3.7
-  #           - 3.8
-  #           - 3.9
-  #   name: Test installation from PyPI for Python ${{ matrix.python-version }} on ${{ matrix.os }}
-  #   runs-on: ${{ matrix.os }}
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
-  #       with:
-  #         fetch-depth: 1
-
-  #     - name: Set up Python
-  #       uses: actions/setup-python@v2
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
-  #     - name: Display Python version
-  #       run: |
-  #         python -c "import sys; print(sys.version)"
-  #         python -m venv venv
-
-  #     - name: Activate virtual environment (Linux/MacOS)
-  #       if: runner.os == 'Linux' || runner.os == 'macOS'
-  #       run: . venv/bin/activate
-
-  #     - name: Activate virtual environment (Windows)
-  #       if: runner.os == 'Windows'
-  #       run: venv\Scripts\Activate.ps1
-
-  #     - name: Display Pip Version and confirm environment empty
-  #       run: |
-  #         pip -V
-  #         pip freeze
-
-  #     - name: Extract package info # Adapted from: https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
-  #       shell: bash
-  #       run: |
-  #         echo '##[set-output name=package-name;]$(echo $(python .github/workflows/extract_package_info.py package_name))'
-  #         echo '##[set-output name=package-version;]$(echo $(python .github/workflows/extract_package_info.py package_version))'
-  #       id: extract_package_info
-
-  #     - name: Install Main Package From PyPI
-  #       if: github.event.inputs.publish_package == '1'
-  #       run: python .github/workflows/extract_package_info.py install_from_pypi
-
-  #     - name: Install Main Package From Local repo as test since not publishing to PyPI
-  #       if: github.event.inputs.publish_package != '1'
-  #       run: |
-  #         echo Extracted package name that would have been used when publishing: ${{ steps.extract_package_info.outputs.package-name }}
-  #         echo Extracted package version that would have been used when publishing: ${{ steps.extract_package_info.outputs.package-version }}
-  #         pip install -e .
-
-  #     - name: Confirm no import errors when opening package
-  #       run: python -c "import ${{ steps.extract_package_info.outputs.package-name }}"
-
-  #     - name: Install Dev Dependencies
-  #       run: pip install -r requirements-dev.txt
-
-  #     - name: Log full installed packages
-  #       run: pip freeze
-
-  #     - name: Run Tests with randomly generated seed
-  #       if: github.event.inputs.randomlyseed == ''
-  #       run: pytest -xsvv --full-ci --include-slow-tests --cov-fail-under=0
-
-  #     - name: Run Tests with supplied pytest-randomly seed
-  #       if: github.event.inputs.randomlyseed != ''
-  #       run: pytest -xsvv --full-ci --include-slow-tests --randomly-seed=${{ github.event.inputs.randomlyseed }} --cov-fail-under=0
-
-  # create_tag:
-  #   needs: [install_from_pypi]
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       os:
-  #         - "ubuntu-18.04"
-  #   name: Creating tag on ${{ matrix.os }}
-  #   runs-on: ${{ matrix.os }}
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
-  #       with:
-  #         fetch-depth: 1
-
-  #     - name: Extract version number # Adapted from: https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
-  #       shell: bash
-  #       run: echo '##[set-output name=package-version;]$(echo $(grep -Po "(?<=    version=\")[0-9.]+" setup.py))'
-  #       id: extract_version
-
-  #     - name: Tagging commit
-  #       run: |
-  #         echo "About to tag with: ${{ steps.extract_version.outputs.package-version }}"
-  #         git tag "${{ steps.extract_version.outputs.package-version }}"
-
-  #     - name: Pushing Tag
-  #       if: github.event.inputs.publish_package == '1'
-  #       run: git push --tags
+      - name: Pushing Tag
+        if: github.event.inputs.publish_package == '1'
+        run: git push --tags
