@@ -286,16 +286,16 @@ jobs:
           path: "package.json"
           prop_path: "name"
 
-      - name: Delete package.json so that published package can be installed
-        run: rm package.json
+      - name: Delete everything in the folder once the information from package.json has been extracted
+        run: rm -rf
 
       - name: Install Just Published Package From NPM
         if: github.event.inputs.publish_package == '1'
-        run: npm install ${{steps.package-name.outputs.prop}}@${{steps.package-version.outputs.prop}}
+        run: npm install ${{steps.package-name.outputs.prop}}@${{steps.package-version.outputs.prop}} -g
 
       - name: Install Most Recently Available Package From NPM
         if: github.event.inputs.publish_package != '1'
-        run: npm install ${{steps.package-name.outputs.prop}}
+        run: npm install ${{steps.package-name.outputs.prop}} -g
 
       - name: Create tiny .js file to require package
         run: |
