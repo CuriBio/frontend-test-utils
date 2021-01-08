@@ -297,6 +297,10 @@ jobs:
         if: runner.os == 'Windows'
         run: rm -r -Force *
 
+      - name: Create tiny package.json file to allow a test installation
+        run: |
+          echo '{"name":"test_package"}' > package.json
+
       - name: Install Just Published Package From NPM
         if: github.event.inputs.publish_package == '1'
         run: npm install ${{steps.package-name.outputs.prop}}@${{steps.package-version.outputs.prop}} -g
