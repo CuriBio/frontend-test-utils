@@ -303,11 +303,11 @@ jobs:
 
       - name: Install Just Published Package From NPM
         if: github.event.inputs.publish_package == '1'
-        run: npm install ${{steps.package-name.outputs.prop}}@${{steps.package-version.outputs.prop}} -g
+        run: npm install ${{steps.package-name.outputs.prop}}@${{steps.package-version.outputs.prop}}
 
       - name: Install Most Recently Available Package From NPM
         if: github.event.inputs.publish_package != '1'
-        run: npm install ${{steps.package-name.outputs.prop}} -g
+        run: npm install ${{steps.package-name.outputs.prop}}
 
       - name: Create tiny .js file to require package
         run: |
