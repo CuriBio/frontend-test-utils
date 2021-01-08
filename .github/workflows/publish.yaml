@@ -286,8 +286,12 @@ jobs:
           path: "package.json"
           prop_path: "name"
 
-      - name: Delete everything in the folder once the information from package.json has been extracted
-        run: rm -rf
+      - name: Delete everything in the folder once the information from package.json has been extracted (Linux)
+        if: runner.os == 'Linux'
+        run: rm -rf $(ls -A)
+      - name: Delete everything in the folder once the information from package.json has been extracted (Windows)
+        if: runner.os == 'Windows'
+        run: rm -r -Force *
 
       - name: Install Just Published Package From NPM
         if: github.event.inputs.publish_package == '1'
