@@ -238,9 +238,13 @@ jobs:
           npm install -g npm-cli-login@0.1.1
           npm-cli-login
 
-      - name: Uploading to NPM
+      - name: Uploading to NPM (if publishing)
         if: github.event.inputs.publish_package == '1'
         run: npm publish --access public
+
+      - name: Uploading to NPM (if dry run)
+        if: github.event.inputs.publish_package != '1'
+        run: npm publish --access public --dry-run
 
       - name: Sleep for 180 seconds to allow NPM Index to update before proceeding to the next step
         if: github.event.inputs.publish_package == '1'
@@ -262,7 +266,7 @@ jobs:
     name: Test installation from NPM for Node ${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Checkout
+      - name: Checkout # needed to get the package.json to get version info
         uses: actions/checkout@v2
         with:
           fetch-depth: 1
@@ -286,16 +290,30 @@ jobs:
           path: "package.json"
           prop_path: "name"
 
-      - name: Install Main Package From NPM
+      - name: Delete everything in the folder once the information from package.json has been extracted (Linux)
+        if: runner.os == 'Linux'
+        run: rm -rf $(ls -A)
+      - name: Delete everything in the folder once the information from package.json has been extracted (Windows)
+        if: runner.os == 'Windows'
+        run: rm -r -Force *
+
+      - name: Create tiny package.json file to allow a test installation
+        run: |
+          echo '{"name":"test_package"}' > package.json
+
+      - name: Install Just Published Package From NPM
         if: github.event.inputs.publish_package == '1'
         run: npm install ${{steps.package-name.outputs.prop}}@${{steps.package-version.outputs.prop}}
+
+      - name: Install Most Recently Available Package From NPM
+        if: github.event.inputs.publish_package != '1'
+        run: npm install ${{steps.package-name.outputs.prop}}
 
       - name: Create tiny .js file to require package
         run: |
           echo 'require("${{steps.package-name.outputs.prop}}")' > tmp.js
 
       - name: Confirm to import errors when opening package
-        if: github.event.inputs.publish_package == '1'
         run: node tmp.js
 
   create_tag:

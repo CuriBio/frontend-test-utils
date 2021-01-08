@@ -1,6 +1,6 @@
 {
   "name": "@curi-bio/frontend-test-utils",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Various utilities to help with Front End unit and Visual Regression testing.",
   "main": "./dist/frontend-test-utils.common.js",
   "author": "Curi Bio <contact@curibio.com> (http://www.curibio.com/)",
@@ -28,7 +28,7 @@
   "dependencies": {
     "@platform-os/testcafe-helpers": "^2.3.2",
     "bootstrap": "^4.4.1",
-    "chrome-remote-interface": "^0.28.0",
+    "chrome-remote-interface": "^0.29.0",
     "ci-info": "^2.0.0",
     "cross-env": "^7.0.2",
     "d-path-parser": "^1.0.0",
