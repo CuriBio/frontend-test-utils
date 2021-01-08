@@ -238,9 +238,13 @@ jobs:
           npm install -g npm-cli-login@0.1.1
           npm-cli-login
 
-      - name: Uploading to NPM
+      - name: Uploading to NPM (if publishing)
         if: github.event.inputs.publish_package == '1'
         run: npm publish --access public
+
+      - name: Uploading to NPM (if dry run)
+        if: github.event.inputs.publish_package != '1'
+        run: npm publish --access public --dry-run
 
       - name: Sleep for 180 seconds to allow NPM Index to update before proceeding to the next step
         if: github.event.inputs.publish_package == '1'
