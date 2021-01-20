@@ -27,7 +27,6 @@
   ],
   "dependencies": {
     "@platform-os/testcafe-helpers": "^2.3.2",
-    "bootstrap": "^4.4.1",
     "chrome-remote-interface": "^0.29.0",
     "ci-info": "^2.0.0",
     "cross-env": "^7.0.2",
