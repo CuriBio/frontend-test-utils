@@ -14,7 +14,7 @@ describe("waveform_test_utils", () => {
     expect(true).toStrictEqual(true);
   });
   describe("convert_waveform_line_pixel_coordinates_to_expected_data", () => {
-    test("Given a typical set of geometry properties for the D3 canvas, When sample data is passed in, Then it correctly calculates the original coordinates", () => {
+    test("a typical set of geometry properties for the D3 canvas, When sample data is passed in, Then it correctly calculates the original coordinates", () => {
       const geometry = {
         y_min: 0,
         y_max: 500,
