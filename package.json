@@ -58,7 +58,7 @@
     "babel-preset-stage-2": "^6.24.1",
     "core-js": "3.8.2",
     "css-loader": "^5.0.0",
-    "eslint": "7.17.0",
+    "eslint": "7.18.0",
     "eslint-config-google": "0.14.0",
     "eslint-config-prettier": "7.1.0",
     "eslint-config-standard": "16.0.2",
