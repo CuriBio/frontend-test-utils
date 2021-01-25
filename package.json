@@ -34,7 +34,7 @@
     "fs-extra": "^9.0.1",
     "mkdirp": "^1.0.4",
     "resemblejs": "^3.2.5",
-    "testcafe": "^1.9.3",
+    "testcafe": "^1.10.1",
     "testcafe-vue-selectors": "^3.1.0"
   },
   "devDependencies": {
@@ -57,10 +57,9 @@
     "jest-html-reporter": "~3.3.0",
     "jest-serializer-vue": "~2.0.2",
     "jest-transform-stub": "~2.0.0",
-    "jquery": "~3.5.1",
     "jsdoc": "~3.6.3",
     "npm-merge-driver": "~2.3.6",
-    "sinon": "~9.2.1",
+    "sinon": "~9.2.4",
     "vue": "~2.6.11",
     "vue-template-compiler": "~2.6.10",
     "webpack": "~4.46.0"
