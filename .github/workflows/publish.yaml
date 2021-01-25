@@ -121,7 +121,7 @@ jobs:
         env:
           cache-name: cache-python-modules
         with:
-          path: ./.cache/pip
+          path: ~/.cache/pip
           key: ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-${{ hashFiles('**/requirements-dev.txt') }}
           restore-keys: |
             ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-
