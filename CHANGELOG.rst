@@ -1,5 +1,10 @@
 Changelog for Frontend Test Utils
 =================================
+0.1.2 (2020-01-25)
+------------------
+
+- Removed large numbers of unneeded devDependencies
+
 0.1.1 (2020-01-08)
 ------------------
 
