@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@vue/cli-service": "^4.4.4",
-    "core-js": "~3.10.0",
+    "core-js": "~3.20.0",
     "eslint": "~7.26.0",
     "eslint-config-google": "~0.14.0",
     "eslint-config-prettier": "~8.1.0",
