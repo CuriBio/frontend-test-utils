@@ -9,15 +9,15 @@
     "url": "https://github.com/CuriBio/frontend-test-utils.git"
   },
   "scripts": {
-    "test:e2e": "node ./check_engines.js && testcafe chrome:headless:cdpPort=9222 ./tests/e2e --screenshots path=./tests/e2e/screenshots",
+    "test:e2e": "node ./check-engines.js && testcafe chrome:headless:cdpPort=9222 ./tests/e2e --screenshots path=./tests/e2e/screenshots",
     "prepare": "pip install -r requirements-dev.txt && pre-commit install && npx npm-merge-driver install",
-    "build": "node ./check_engines.js && npm run _build",
-    "test:unit-no-prebuild": "node ./check_engines.js && jest -c jest.config.js",
+    "build": "node ./check-engines.js && npm run _build",
+    "test:unit-no-prebuild": "node ./check-engines.js && jest -c jest.config.js",
     "test:unit": "npm run build && jest -c jest.config.js",
     "_build": "vue-cli-service build --target lib --name frontend-test-utils ./src/index.js"
   },
   "engines": {
-    "node": ">=14.15.1"
+    "node": "^16.17.0"
   },
   "files": [
     "dist/*",
