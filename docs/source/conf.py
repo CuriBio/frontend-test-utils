@@ -19,12 +19,8 @@ from typing import List
 abs_repo_root_path = os.path.abspath(
     os.path.join(os.path.dirname((inspect.stack()[0][1])), os.pardir, os.pardir)
 )
-path_to_jsdoc = os.path.abspath(
-    os.path.join(abs_repo_root_path, "node_modules", ".bin", "jsdoc")
-)
-path_to_jsdoc = os.path.abspath(
-    os.path.join(os.pardir, os.pardir, "node_modules", ".bin")
-)
+path_to_jsdoc = os.path.abspath(os.path.join(abs_repo_root_path, "node_modules", ".bin", "jsdoc"))
+path_to_jsdoc = os.path.abspath(os.path.join(os.pardir, os.pardir, "node_modules", ".bin"))
 
 
 os.environ["PATH"] += (
@@ -38,8 +34,8 @@ js_source_path = os.path.join(abs_repo_root_path, "src")
 # -- Project information -----------------------------------------------------
 
 project = "frontend_test_utils"
-copyright = "2019, NanoSurface Biomedical"  # pylint: disable=redefined-builtin
-author = "NanoSurface Biomedical"
+copyright = "2022, CuriBio"  # pylint: disable=redefined-builtin
+author = "CuriBio"
 
 # The full version, including alpha/beta/rc tags
 release = "0.1"
