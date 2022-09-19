@@ -24,3 +24,13 @@ For unit and Visual Regression testing of Front End packages / apps.
 .. image:: https://img.shields.io/badge/code_style-prettier-ff69b4.svg
    :target: https://github.com/prettier/prettier
    :alt: code style: prettier
+
+NodeJS Dependencies:
+
+.. image:: https://david-dm.org/CuriBio/frontend-test-utils/status.svg
+   :target: https://david-dm.org/CuriBio/frontend-test-utils
+   :alt: NodeDependency Status
+
+.. image:: https://david-dm.org/CuriBio/frontend-test-utils/dev-status.svg
+   :target: https://david-dm.org/CuriBio/frontend-test-utils?type=dev
+   :alt: NodeDevDependency Status

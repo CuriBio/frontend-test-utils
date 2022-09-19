@@ -57,10 +57,7 @@ describe("visual_regression_utils", () => {
       test("When no extra rectangle coordinates are supplied, Then spectron_page_visual_regression calls capturePage with an empty object", async () => {
         sandbox.stub(resemble); // Eli (6/14/20): not sure why this is can't be in the beforeEach section...sandbox.restore() is supposed to already take care of this...but without it "Attempted to wrap compare which is already wrapped" error occurs
         await expect(
-          spectron_page_visual_regression(
-            mocked_spectron_browser_window,
-            "my-screenshot-path"
-          )
+          spectron_page_visual_regression(mocked_spectron_browser_window, "my-screenshot-path")
         ).resolves.toBe(true); // must await the expect for async functions https://github.com/facebook/jest/issues/5538
         expect(mocked_capture_page).toHaveBeenCalledTimes(2);
         expect(mocked_capture_page).toHaveBeenNthCalledWith(1, {});
@@ -76,15 +73,9 @@ describe("visual_regression_utils", () => {
             expected_rectangle
           )
         ).resolves.toBe(true); // must await the expect for async functions https://github.com/facebook/jest/issues/5538
-        expect(
-          mocked_spectron_browser_window.capturePage
-        ).toHaveBeenCalledTimes(2);
-        expect(
-          mocked_spectron_browser_window.capturePage
-        ).toHaveBeenNthCalledWith(1, expected_rectangle);
-        expect(
-          mocked_spectron_browser_window.capturePage
-        ).toHaveBeenNthCalledWith(2, expected_rectangle);
+        expect(mocked_spectron_browser_window.capturePage).toHaveBeenCalledTimes(2);
+        expect(mocked_spectron_browser_window.capturePage).toHaveBeenNthCalledWith(1, expected_rectangle);
+        expect(mocked_spectron_browser_window.capturePage).toHaveBeenNthCalledWith(2, expected_rectangle);
       });
     });
 
@@ -101,9 +92,9 @@ describe("visual_regression_utils", () => {
           },
         };
 
-        await expect(
-          testcafe_page_visual_regression(mocked_testcafe, "my-screenshot-path")
-        ).rejects.toThrow(BaseScreenshotNotFoundDuringCI); // must await the expect for async functions https://github.com/facebook/jest/issues/5538
+        await expect(testcafe_page_visual_regression(mocked_testcafe, "my-screenshot-path")).rejects.toThrow(
+          BaseScreenshotNotFoundDuringCI
+        ); // must await the expect for async functions https://github.com/facebook/jest/issues/5538
       });
       test("When no base image is available, Then testcafe_element_visual_regression throws an error", async () => {
         const mocked_testcafe = {
@@ -115,11 +106,7 @@ describe("visual_regression_utils", () => {
 
         const dummy_element = {};
         await expect(
-          testcafe_element_visual_regression(
-            mocked_testcafe,
-            dummy_element,
-            "my-screenshot-path"
-          )
+          testcafe_element_visual_regression(mocked_testcafe, dummy_element, "my-screenshot-path")
         ).rejects.toThrow(BaseScreenshotNotFoundDuringCI); // must await the expect for async functions https://github.com/facebook/jest/issues/5538
       });
       test("When no base image is available, Then spectron_page_visual_regression throws an error", async () => {
@@ -130,10 +117,7 @@ describe("visual_regression_utils", () => {
         };
 
         await expect(
-          spectron_page_visual_regression(
-            mocked_spectron_browser_window,
-            "my-screenshot-path"
-          )
+          spectron_page_visual_regression(mocked_spectron_browser_window, "my-screenshot-path")
         ).rejects.toThrow(BaseScreenshotNotFoundDuringCI); // must await the expect for async functions https://github.com/facebook/jest/issues/5538
       });
     });
@@ -141,30 +125,16 @@ describe("visual_regression_utils", () => {
 
   describe("compare_images", () => {
     const base_image_path = path.join(__dirname, "images", "plate-barcode.png");
-    const duplicate_image_path = path.join(
-      __dirname,
-      "images",
-      "plate-barcode-copy.png"
-    );
-    const mismatched_image_path = path.join(
-      __dirname,
-      "images",
-      "plate-barcode-redbox.png"
-    );
+    const duplicate_image_path = path.join(__dirname, "images", "plate-barcode-copy.png");
+    const mismatched_image_path = path.join(__dirname, "images", "plate-barcode-redbox.png");
     test("When two images are identical, Then it resolves to true", async () => {
-      const result_of_comparison = compare_images(
-        base_image_path,
-        duplicate_image_path
-      );
+      const result_of_comparison = compare_images(base_image_path, duplicate_image_path);
       await expect(result_of_comparison).resolves.toBe(true);
     });
     test("When two images are mismatched, Then it resolves to be false and creates diff image", async () => {
       const stubbed_write_file_sync = sandbox.stub(fs, "writeFileSync");
 
-      const result_of_comparison = compare_images(
-        base_image_path,
-        mismatched_image_path
-      );
+      const result_of_comparison = compare_images(base_image_path, mismatched_image_path);
 
       await expect(result_of_comparison).resolves.toBe(false);
 

@@ -15,10 +15,7 @@ beforeEach(() => {
   global.console.error = (...args) => {
     for (let i = 0; i < args.length; i += 1) {
       const arg = args[i];
-      if (
-        typeof arg === "string" &&
-        (arg.includes("Vue warn") || arg.includes("unhandledRejection"))
-      ) {
+      if (typeof arg === "string" && (arg.includes("Vue warn") || arg.includes("unhandledRejection"))) {
         if (!arg.includes("Vue warn]: Error")) {
           // Eli (3/26/20): for some reason if there is an actual error, a lot of the relevant stack trace is lost. so hopefully this still throws errors in actual warnings but allows real errors to be processed normally
           // console.log("throwing error here...the arg was: " + arg);
