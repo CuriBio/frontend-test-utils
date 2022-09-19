@@ -75,9 +75,9 @@ jobs:
         if: runner.os == 'Linux'
         run: if [ "${{ steps.extract_branch.outputs.sha-of-current-branch}}" = "${{ steps.extract_branch.outputs.sha-of-main-branch}}" ] ; then echo "Running on main branch."; else echo "Not running on main branch."; fi
 
-      - name: Fail if attempting to publish from a branch other than main
-        if: runner.os == 'Linux' && github.event.inputs.publish_package == '1'
-        run: if [ "${{ steps.extract_branch.outputs.sha-of-current-branch}}" = "${{ steps.extract_branch.outputs.sha-of-main-branch}}" ] ; then echo "Running on main branch, can proceed to publish."; else exit 1; fi
+      # - name: Fail if attempting to publish from a branch other than main
+      #   if: runner.os == 'Linux' && github.event.inputs.publish_package == '1'
+      #   run: if [ "${{ steps.extract_branch.outputs.sha-of-current-branch}}" = "${{ steps.extract_branch.outputs.sha-of-main-branch}}" ] ; then echo "Running on main branch, can proceed to publish."; else exit 1; fi
 
       - name: Set up Python for use with pre-commit
         uses: actions/setup-python@v2
@@ -168,9 +168,6 @@ jobs:
           PRE_COMMIT_HOME: ./.precommit_cache
         run: pre-commit run git-dirty -a
 
-      # - name: Confirm can install in other directory # https://docs.npmjs.com/cli/v6/using-npm/developers
-      #   run: |
-
       - name: Upload build artifact
         uses: actions/upload-artifact@v2
         with:
@@ -195,12 +192,16 @@ jobs:
           fetch-depth: 1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v3.1.1
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         with:
           node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.org/
+          scope: "@curi-bio-ci"
 
       - name: Cache node modules # https://docs.github.com/en/free-pro-team@latest/actions/guides/caching-dependencies-to-speed-up-workflows
-        uses: actions/cache@v2.1.5
+        uses: actions/cache@v2.1.7
         env:
           cache-name: cache-node-modules
         with:
@@ -233,16 +234,6 @@ jobs:
           npm ci --unsafe-perm --cache .npm_cache/
           pip freeze
 
-      - name: Logging into NPM
-        env:
-          NPM_USER: ${{ secrets.NPM_USERNAME }}
-          NPM_PASS: ${{ secrets.NPM_PASSWORD }}
-          NPM_EMAIL: ${{ secrets.NPM_EMAIL }}
-
-        run: |
-          npm install -g npm-cli-login@0.1.1
-          npm-cli-login
-
       - name: Uploading to NPM (if publishing)
         if: github.event.inputs.publish_package == '1'
         run: npm publish --access public
@@ -253,10 +244,9 @@ jobs:
 
       - name: Sleep for 180 seconds to allow NPM Index to update before proceeding to the next step
         if: github.event.inputs.publish_package == '1'
-        uses: juliangruber/sleep-action@v1
+        uses: juliangruber/sleep-action@v1.0.1
         with:
           time: 180s
-
   install_from_npm:
     needs: [publish_package]
     strategy:
