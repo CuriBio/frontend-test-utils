@@ -1,6 +1,6 @@
 {
   "name": "@curi-bio/frontend-test-utils",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Various utilities to help with Front End unit and Visual Regression testing.",
   "main": "./dist/frontend-test-utils.common.js",
   "author": "Curi Bio <contact@curibio.com> (http://www.curibio.com/)",

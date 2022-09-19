@@ -1,10 +1,12 @@
+#!/usr/bin/env node
+
 /*
   This module cannot contain any external libraries!
 
   Adapted from:
     - https://github.com/michalzaq12/electron-nuxt/blob/master/template/.electron-nuxt/check-engines.js
     - https://stackoverflow.com/questions/67831958/prevent-npm-start-if-node-version-mismatch
- */
+*/
 
 const path = require("path");
 
@@ -39,7 +41,7 @@ const currentNodeVersion = process.version.replace(/^v/, "");
 /*
   Only compare components of version that are defined in engines.node. For example, if no patch version is
   defined, don't need to check the patch version of the actual version of node that is running this script.
- */
+*/
 minNodeVersion.split(".").forEach((min, idx) => {
   const curr = currentNodeVersion.split(".")[idx];
   if (curr > min) {
