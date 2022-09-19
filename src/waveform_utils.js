@@ -26,10 +26,11 @@ export function get_y_axis_ticks_with_text(waveform_wrapper) {
  * Extract the parsed line path from the SVG d3 object within a Component in the DOM
  *
  * @param {Object} waveform_wrapper - The vue-test-utils wrapper for the waveform component containing the SVG drawing
+ * @param {String} element - The name of the element
  * @return {Array} An array of path elements.
  */
-export function get_waveform_line_parsed_path(waveform_wrapper) {
-  const waveform_line_node = waveform_wrapper.find("#waveform_line_node");
+export function get_waveform_line_parsed_path(waveform_wrapper, element = "waveform_line_node") {
+  const waveform_line_node = waveform_wrapper.find(`${element}`);
   const waveform_line_path = waveform_line_node.find("path");
   const waveform_line_path_d = waveform_line_path.attributes("d");
   const parsed_path = parse_svg_d_path(waveform_line_path_d);
