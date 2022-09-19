@@ -6,18 +6,29 @@
     - https://stackoverflow.com/questions/67831958/prevent-npm-start-if-node-version-mismatch
  */
 
+const path = require("path");
+
 const FG_RED = "\x1b[31m";
 const RESET = "\x1b[0m";
 
-const warnInRed = (msg) => {
-  console.warn(FG_RED + msg + RESET);
+const errorInRed = (msg) => {
+  console.error(FG_RED + msg + RESET);
 };
 
-const packageDetails = require("./package.json");
+const packageDetails = (() => {
+  const packagePath = path.join(process.cwd(), "./package.json");
+  try {
+    return require(packagePath);
+  } catch (e) {
+    errorInRed(`Could not find ${packagePath}`);
+    process.exit(1);
+  }
+})();
+
 const engines = packageDetails.engines;
 
 if (!engines || !engines.node) {
-  warnInRed("Please define 'engines.node' in package.json");
+  errorInRed("Please define 'engines.node' in package.json");
   process.exit(1);
 }
 
@@ -35,7 +46,7 @@ minNodeVersion.split(".").forEach((min, idx) => {
     // acceptable node version in use, exit successfully
     process.exit(0);
   } else if (curr < min) {
-    warnInRed(`Min node version required: v${minNodeVersion}, found: v${currentNodeVersion}`);
+    errorInRed(`Min node version required: v${minNodeVersion}, found: v${currentNodeVersion}`);
     process.exit(1);
   }
   // if the two version components are equal, must check the next version component

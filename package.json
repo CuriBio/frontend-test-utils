@@ -17,6 +17,9 @@
     "_ce": "node ./check-engines.js",
     "_build": "vue-cli-service build --target lib --name frontend-test-utils ./src/index.js"
   },
+  "bin": {
+    "check-engines": "./check-engines.js"
+  },
   "engines": {
     "node": "^16.17.0"
   },
