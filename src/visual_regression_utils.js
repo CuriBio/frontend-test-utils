@@ -83,11 +83,7 @@ function get_absolute_path_for_screenshot(screenshot_path, screenshot_type) {
  * @throws {BaseScreenshotNotFoundDuringCI} All base images should be commited to the repo prior to running tests in Continous Integration.
  * @return {None}
  */
-async function compare_images_testcafe(
-  t,
-  base_absolute_path,
-  actual_absolute_path
-) {
+async function compare_images_testcafe(t, base_absolute_path, actual_absolute_path) {
   await resemble(base_absolute_path)
     .compareTo(actual_absolute_path)
     .outputSettings({
@@ -108,10 +104,7 @@ async function compare_images_testcafe(
         fs.writeFileSync(
           path.join(
             path.dirname(actual_absolute_path),
-            `${path.basename(
-              actual_absolute_path,
-              path.extname(actual_absolute_path)
-            )}-diff.png`
+            `${path.basename(actual_absolute_path, path.extname(actual_absolute_path))}-diff.png`
           ),
           data.getBuffer()
         );
@@ -157,10 +150,7 @@ export async function compare_images(base_absolute_path, actual_absolute_path) {
         fs.writeFileSync(
           path.join(
             path.dirname(actual_absolute_path),
-            `${path.basename(
-              actual_absolute_path,
-              path.extname(actual_absolute_path)
-            )}-diff.png`
+            `${path.basename(actual_absolute_path, path.extname(actual_absolute_path))}-diff.png`
           ),
           data.getBuffer()
         );
@@ -179,22 +169,12 @@ export async function compare_images(base_absolute_path, actual_absolute_path) {
  * @throws {BaseScreenshotNotFoundDuringCI} All base images should be commited to the repo prior to running tests in Continous Integration.
  * @return {None}
  */
-export async function testcafe_element_visual_regression(
-  t,
-  selector,
-  screenshot_path
-) {
+export async function testcafe_element_visual_regression(t, selector, screenshot_path) {
   // take actual screenshot
-  const actual_screenshot_absolute_path = get_absolute_path_for_screenshot(
-    screenshot_path,
-    "actual"
-  );
+  const actual_screenshot_absolute_path = get_absolute_path_for_screenshot(screenshot_path, "actual");
   await t.takeElementScreenshot(selector, screenshot_path + "-actual.png");
 
-  const base_screenshot_absolute_path = get_absolute_path_for_screenshot(
-    screenshot_path,
-    "base"
-  );
+  const base_screenshot_absolute_path = get_absolute_path_for_screenshot(screenshot_path, "base");
 
   const is_base_screenshot_taken = fs.existsSync(base_screenshot_absolute_path);
 
@@ -211,8 +191,7 @@ export async function testcafe_element_visual_regression(
     }
     console.log(
       // allow-log
-      "No existing base screenshot was detected, so taking a new one: " +
-        base_screenshot_absolute_path
+      "No existing base screenshot was detected, so taking a new one: " + base_screenshot_absolute_path
     );
 
     // take base screenshot
@@ -220,11 +199,7 @@ export async function testcafe_element_visual_regression(
     return;
   }
 
-  await compare_images_testcafe(
-    t,
-    base_screenshot_absolute_path,
-    actual_screenshot_absolute_path
-  );
+  await compare_images_testcafe(t, base_screenshot_absolute_path, actual_screenshot_absolute_path);
 }
 
 /**
@@ -237,16 +212,10 @@ export async function testcafe_element_visual_regression(
  */
 export async function testcafe_page_visual_regression(t, screenshot_path) {
   // take actual screenshot
-  const actual_screenshot_absolute_path = get_absolute_path_for_screenshot(
-    screenshot_path,
-    "actual"
-  );
+  const actual_screenshot_absolute_path = get_absolute_path_for_screenshot(screenshot_path, "actual");
   await t.takeScreenshot(screenshot_path + "-actual.png");
 
-  const base_screenshot_absolute_path = get_absolute_path_for_screenshot(
-    screenshot_path,
-    "base"
-  );
+  const base_screenshot_absolute_path = get_absolute_path_for_screenshot(screenshot_path, "base");
 
   const is_base_screenshot_taken = fs.existsSync(base_screenshot_absolute_path);
 
@@ -263,8 +232,7 @@ export async function testcafe_page_visual_regression(t, screenshot_path) {
     }
     console.log(
       // allow-log
-      "No existing base screenshot was detected, so taking a new one: " +
-        base_screenshot_absolute_path
+      "No existing base screenshot was detected, so taking a new one: " + base_screenshot_absolute_path
     );
 
     // take base screenshot
@@ -272,11 +240,7 @@ export async function testcafe_page_visual_regression(t, screenshot_path) {
     return;
   }
 
-  await compare_images_testcafe(
-    t,
-    base_screenshot_absolute_path,
-    actual_screenshot_absolute_path
-  );
+  await compare_images_testcafe(t, base_screenshot_absolute_path, actual_screenshot_absolute_path);
 }
 
 /**
@@ -294,18 +258,12 @@ export async function spectron_page_visual_regression(
   rectangle_to_capture = {}
 ) {
   // take actual screenshot
-  const actual_screenshot_absolute_path = get_absolute_path_for_screenshot(
-    screenshot_path,
-    "actual"
-  );
+  const actual_screenshot_absolute_path = get_absolute_path_for_screenshot(screenshot_path, "actual");
   const image_buffer = await browser_window.capturePage(rectangle_to_capture);
 
   fs.writeFileSync(actual_screenshot_absolute_path, image_buffer);
 
-  const base_screenshot_absolute_path = get_absolute_path_for_screenshot(
-    screenshot_path,
-    "base"
-  );
+  const base_screenshot_absolute_path = get_absolute_path_for_screenshot(screenshot_path, "base");
 
   const is_base_screenshot_taken = fs.existsSync(base_screenshot_absolute_path);
 
@@ -319,14 +277,11 @@ export async function spectron_page_visual_regression(
     }
     console.log(
       // allow-log
-      "No existing base screenshot was detected, so taking a new one: " +
-        base_screenshot_absolute_path
+      "No existing base screenshot was detected, so taking a new one: " + base_screenshot_absolute_path
     );
 
     // take base screenshot
-    const base_image_buffer = await browser_window.capturePage(
-      rectangle_to_capture
-    );
+    const base_image_buffer = await browser_window.capturePage(rectangle_to_capture);
 
     fs.writeFileSync(base_screenshot_absolute_path, base_image_buffer);
 

@@ -61,10 +61,7 @@ export function get_waveform_line_pixel_coordinates_from_svg(waveform_wrapper) {
  * @param {Object} plot_geometry - An object containing various attributes about the geometry of the drawing. Often the nomenclature matches the propsData supplied to Waveform.vue and so propsData can be passed in as this value.
  * @return {Array} A 2D array of the x/y numerical values that should have been used to generate the pixel coordinates (follows same 2D array format as pixel_coords)
  */
-export function convert_waveform_line_pixel_coordinates_to_expected_data(
-  pixel_coords,
-  plot_geometry
-) {
+export function convert_waveform_line_pixel_coordinates_to_expected_data(pixel_coords, plot_geometry) {
   const plot_area_pixel_height = plot_geometry.plot_area_pixel_height;
   const plot_area_pixel_width = plot_geometry.plot_area_pixel_width;
   const y_min = plot_geometry.y_min;
