@@ -1,6 +1,15 @@
 Changelog for Frontend Test Utils
 =================================
 
+
+0.2.1 (2022-09-19)
+------------------
+
+Fixed:
+^^^^^^
+- ``get_waveform_line_parsed_path`` and ``get_waveform_line_pixel_coordinates_from_svg``
+
+
 0.2.0 (2022-09-19)
 ------------------
 

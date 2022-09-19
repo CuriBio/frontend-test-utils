@@ -30,7 +30,7 @@ export function get_y_axis_ticks_with_text(waveform_wrapper) {
  * @return {Array} An array of path elements.
  */
 export function get_waveform_line_parsed_path(waveform_wrapper, element = "waveform_line_node") {
-  const waveform_line_node = waveform_wrapper.find(`${element}`);
+  const waveform_line_node = waveform_wrapper.find(`#${element}`);
   const waveform_line_path = waveform_line_node.find("path");
   const waveform_line_path_d = waveform_line_path.attributes("d");
   const parsed_path = parse_svg_d_path(waveform_line_path_d);
@@ -41,10 +41,14 @@ export function get_waveform_line_parsed_path(waveform_wrapper, element = "wavef
  * Extract pixel line coordinates from a d3 SVG within a Component in the DOM
  *
  * @param {Object} waveform_wrapper - The vue-test-utils wrapper for the waveform component containing the SVG drawing
+ * @param {String} element - The name of the element
  * @return {Array} An array of tuples of x/y numerical values for the pixel coordinates of the line
  */
-export function get_waveform_line_pixel_coordinates_from_svg(waveform_wrapper) {
-  const parsed_path = get_waveform_line_parsed_path(waveform_wrapper);
+export function get_waveform_line_pixel_coordinates_from_svg(
+  waveform_wrapper,
+  element = "waveform_line_node"
+) {
+  const parsed_path = get_waveform_line_parsed_path(waveform_wrapper, element);
   const converted_data = [];
   parsed_path.forEach((element) => {
     const x = element.end.x;
