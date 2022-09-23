@@ -9,6 +9,7 @@
 */
 
 const path = require("path");
+const semver = require("semver");
 
 const FG_RED = "\x1b[31m";
 const RESET = "\x1b[0m";
@@ -34,24 +35,12 @@ if (!engines || !engines.node) {
   process.exit(1);
 }
 
-// assume the version defined is a min requirement
-const minNodeVersion = engines.node.replace(/[>=^~]/g, "");
-const currentNodeVersion = process.version.replace(/^v/, "");
+const nodeVersionReq = engines.node;
+const currentNodeVersion = semver.clean(process.version);
 
-/*
-  Only compare components of version that are defined in engines.node. For example, if no patch version is
-  defined, don't need to check the patch version of the actual version of node that is running this script.
-*/
-minNodeVersion.split(".").forEach((min, idx) => {
-  const curr = currentNodeVersion.split(".")[idx];
-  if (curr > min) {
-    // acceptable node version in use, exit successfully
-    process.exit(0);
-  } else if (curr < min) {
-    errorInRed(`Min node version required: v${minNodeVersion}, found: v${currentNodeVersion}`);
-    process.exit(1);
-  }
-  // if the two version components are equal, must check the next version component
-});
-
-// if this loop exits, then the current node version is exactly equal to the min required node version
+if (semver.satisfies(currentNodeVersion, nodeVersionReq)) {
+  process.exit(0);
+} else {
+  errorInRed(`Invalid node version: ${currentNodeVersion} for requirement: ${nodeVersionReq}`);
+  process.exit(1);
+}
