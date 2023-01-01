@@ -35,11 +35,11 @@
     "fs-extra": "^9.1.0",
     "mkdirp": "^1.0.4",
     "resemblejs": "^4.1.0",
-    "testcafe": "^1.10.1",
+    "testcafe": "^15.1.317922",
     "testcafe-vue-selectors": "^3.1.0"
   },
   "devDependencies": {
-    "@vue/cli-service": "^4.4.4",
+    "@vue/cli-service": "^5.0.8",
     "core-js": "~3.10.0",
     "eslint": "~7.26.0",
     "eslint-config-google": "~0.14.0",
